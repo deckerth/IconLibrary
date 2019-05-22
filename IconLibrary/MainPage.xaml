@@ -1,0 +1,142 @@
+﻿<Page
+    x:Class="IconLibrary.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IconLibrary"
+    xmlns:model="using:IconLibrary.Model"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <local:StringToGeometryConverter x:Key="stringToGeometryConverter"/>
+        <local:NullableBooleanToBooleanConverter x:Key="nullableBooleanToBooleanConverter"/>
+        <local:StringVisibilityConverter x:Key="stringToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <AppBarButton x:Name="LibraryToggleButton" Icon="Library" Grid.Column="0" Click="LibraryToggleButton_Clicked"/>
+
+        <SplitView Name="RootSplitView" DisplayMode="Overlay" IsPaneOpen="{x:Bind LibraryPaneOpen,Mode=TwoWay}" Grid.Column="1">
+            <SplitView.Pane>
+                <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Vertical" Background="#FFE4EAFD">
+                        <TextBlock Text="LIBRARY" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" FontSize="16" Grid.Column="0"/>
+                        <GridView ItemsSource="{x:Bind ViewModel.IconLibrary.Icons}">
+                            <GridView.ItemTemplate>
+                                <DataTemplate x:DataType="local:PathIconViewModel">
+                                    <AppBarButton Label="{x:Bind Name,Mode=OneWay}">
+                                        <AppBarButton.Icon>
+                                            <PathIcon Data="{x:Bind Markup,Converter={StaticResource stringToGeometryConverter},Mode=OneWay}"/>
+                                        </AppBarButton.Icon>
+                                        <AppBarButton.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Copy to clipboard" CommandParameter="{x:Bind Def.Id,Mode=OneWay}" Click="CopyToClipboad_Click"/>
+                                                <MenuFlyoutItem Text="Edit" CommandParameter="{x:Bind Def.Id,Mode=OneWay}" Click="EditIcon_Click"/>
+                                                <MenuFlyoutItem Text="Delete" CommandParameter="{x:Bind Def.Id,Mode=OneWay}" Click="DeleteIcon_Click"/>
+                                            </MenuFlyout>
+                                        </AppBarButton.Flyout>
+                                    </AppBarButton>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
+                    </StackPanel>
+                </Grid>
+            </SplitView.Pane>
+            <Grid>
+                <RelativePanel Margin="20,0,0,0">
+                    <CommandBar Name="Commands" HorizontalAlignment="Stretch">
+                        <AppBarButton Icon="Add" Click="AddIcon_Click" Label="New icon"/>
+                        <AppBarButton Icon="Save" IsEnabled="{x:Bind ViewModel.IconChanged,Mode=OneWay}" Click="SaveIcon_Click" Label="Save"/>
+                        <AppBarButton Icon="Rename" Click="RenameIcon_Click" Label="Rename"/>
+                        <AppBarButton Icon="Copy" Click="SaveIconAs_Click" Label="Save as"/>
+                        <CommandBar.SecondaryCommands>
+                            <AppBarButton Label="Export icons" Click="ExportIcons_Click"/>
+                            <AppBarButton Label="Import icons" Click="ImportIcons_Click"/>
+                        </CommandBar.SecondaryCommands>
+                    </CommandBar>
+
+                    <TextBlock Name="MarkupTitle" Text="Markup: " RelativePanel.AlignLeftWithPanel="True" RelativePanel.Below="Commands" Margin="0,20,0,0"/>
+
+                    <TextBlock Name="IconName" Text="{x:Bind ViewModel.Name,Mode=OneWay}" RelativePanel.RightOf="MarkupTitle" RelativePanel.Below="Commands" Margin="10,20,0,0"/>
+
+                    <TextBox  Name="MarkupEditor"  Text="{x:Bind ViewModel.Markup,Mode=TwoWay}" 
+                          FontFamily="Courier New"
+                          AcceptsReturn="True" TextWrapping="Wrap" Width="400" 
+                          ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                          RelativePanel.AlignLeftWithPanel="True"
+                          RelativePanel.Below="MarkupTitle" Height="700" Margin="0,10,0,0"
+                      />
+
+                    <TextBlock Name="ErrorText" RelativePanel.RightOf="MarkupEditor" RelativePanel.AlignTopWith="MarkupTitle"
+                           Width="500" Foreground="Red" Margin="0,20,0,0"
+                           Text="{x:Bind ErrorMessage,Mode=OneWay}"
+                           Visibility="{x:Bind ErrorMessage,Mode=OneWay,Converter={StaticResource stringToVisibilityConverter}}"
+                           />
+
+                    <TextBlock Name="PathPreviewTitle" Text="Preview" RelativePanel.RightOf="MarkupEditor" RelativePanel.Below="ErrorText" Margin="30,20,0,0"/>
+
+                    <Border Name="PathPreview"  BorderThickness="2" BorderBrush="DarkBlue" Width="100" Height="100" 
+                    RelativePanel.RightOf="MarkupEditor" RelativePanel.Below="PathPreviewTitle" Margin="30,10,0,0">
+                        <PathIcon Data="{x:Bind ViewModel.Markup,Mode=OneWay,Converter={StaticResource stringToGeometryConverter}}" Width="100" Height="100" />
+                    </Border>
+
+                    <TextBlock Name="ButtonPreviewTitle" Text="Button preview" RelativePanel.RightOf="PathPreview" RelativePanel.Below="ErrorText" Margin="30,20,0,0"/>
+
+                    <AppBarButton Name="ButtonPreview" RelativePanel.RightOf="PathPreview" RelativePanel.Below="ButtonPreviewTitle" Margin="30,10,0,0" Background="#FFE4EAFD">
+                        <AppBarButton.Icon>
+                            <PathIcon Data="{x:Bind ViewModel.Markup,Mode=OneWay,Converter={StaticResource stringToGeometryConverter}}"/>
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+
+                    <Border Name ="PreviewGridArea" BorderBrush="DarkBlue" BorderThickness="2"
+                    RelativePanel.AlignLeftWith="PathPreview"
+                    RelativePanel.Below="PathPreview"
+                    Height="500" Width="850" Margin="30,20,0,0"
+                    >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <AppBarButton Name="Refresh" Icon="Refresh" Click="Refresh_Click"/>
+                                <AppBarToggleButton Name="CreateLine" Icon="Remove" Click="CreateLine_Click"/>
+                                <AppBarToggleButton Name="CreateRectangle" Icon="Stop" Click="CreateRectangle_CLick"/>
+                                <AppBarToggleButton Name="CreateCircle"  Click="CreateCircle_CLick">
+                                    <PathIcon Data="F0 M10,0 a9.5,9.5,0,1,1,-1,0 M10,1 a8.5,8.5,0,1,1,-1,0 "/>
+                                </AppBarToggleButton>
+                                <AppBarButton Name="ClearMarkup" Icon="Clear" Click="ClearMarkup_Click"/>
+                            </StackPanel>
+                            <Canvas Name="PreviewCanvas" Height="400" Width="800" Margin="10,10,0,0" Grid.Row="1"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal"
+                        RelativePanel.AlignLeftWith="PathPreview"
+                        RelativePanel.Below="PreviewGridArea" Margin="30,20,0,0">
+                        <TextBlock Text="(" />
+                        <TextBlock Text="{x:Bind Preview.CurrentX,Mode=OneWay}"/>
+                        <TextBlock Text=" , " />
+                        <TextBlock Text="{x:Bind Preview.CurrentY,Mode=OneWay}"/>
+                        <TextBlock Text=")" />
+                        <TextBlock Text="{x:Bind Preview.CurrentPreviewInfo,Mode=OneWay}" Margin="20,0,0,0"/>
+                    </StackPanel>
+
+                </RelativePanel>
+            </Grid>
+        </SplitView>
+
+    </Grid>
+        
+
+</Page>

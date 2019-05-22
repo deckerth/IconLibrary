@@ -1,0 +1,21 @@
+﻿<ContentDialog x:Name="IconNameEditor"
+    x:Class="IconLibrary.IconNameDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IconLibrary"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="ICON"
+    PrimaryButtonText="OK"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <Grid>
+        <RelativePanel>
+            <TextBox Name="IconName" Width="200" Header="Icon name" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True"/>
+            <TextBlock Name="ErrorMessageDisplay" Width="500" Foreground="Red" RelativePanel.AlignLeftWithPanel="True" RelativePanel.Below="IconName" Margin="0,20,0,0"/>
+        </RelativePanel>
+    </Grid>
+</ContentDialog>
